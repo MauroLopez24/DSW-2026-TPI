@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Dsw2026Tpi.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using Dsw2026Tpi.Domain.Entities;
 
@@ -14,10 +15,12 @@ public class Dsw2026TpiDbContext : DbContext
         base(options)
     {
     }
-
+    public DbSet<Patient> Patients => Set<Patient>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
+
 }
+

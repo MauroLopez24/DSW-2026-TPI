@@ -25,12 +25,14 @@ public class Program
             builder.AddSerilogConfiguration();
             builder.Services.AddAppIdentity();
             builder.Services.AddAppAuthentication(builder.Configuration);
+            builder.Services.AddAppRateLimiting(builder.Configuration);
             builder.Services.AddSwaggerConfiguration();
             builder.Services.AddApplicationPersistence(builder.Configuration);
             builder.Services.AddAppCors(builder.Configuration);
             builder.Services.AddAppDependencies();
             builder.Services.AddControllers();
             builder.Services.AddHealthChecks();
+<<<<<<< HEAD
             builder.Services.AddAppRateLimiting(builder.Configuration);
             builder.Services.AddScoped<ISpecialtyService, SpecialtyService>();
             builder.Services.AddScoped<IAvailabilityService, AvailabilityService>();
@@ -38,6 +40,9 @@ public class Program
 
             
 
+=======
+            
+>>>>>>> development
 
             var app = builder.Build();
 
@@ -53,9 +58,10 @@ public class Program
                 app.UseSwaggerUI();
             }
 
+            app.UseCors();
+            app.UseRateLimiter();
             app.UseAuthentication();
             app.UseAuthorization();
-            app.UseCors();
             app.UseMiddleware<ExceptionHandlingMiddleware>();
 
             app.MapControllers();

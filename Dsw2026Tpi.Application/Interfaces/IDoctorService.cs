@@ -6,7 +6,10 @@ namespace Dsw2026Tpi.Application.Interfaces;
 public interface IDoctorService
 {
     Task<Pagination<DoctorModel.Response>> GetAll(int pageSize, int pageIndex, string? name = null);
+<<<<<<< HEAD
     Task<DoctorModel.Response?> GetById(Guid id);
+=======
+>>>>>>> development
     Task<DoctorModel.Response> Create(DoctorModel.Request request);
     Task<DoctorModel.Response> Update(Guid id, DoctorModel.Request request);
     Task Delete(Guid id);

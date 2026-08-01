@@ -19,22 +19,36 @@ public class AuthenticationService : IAuthenticationService
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly JwtService _jwtService;
     private readonly ILogger<AuthenticationService> _logger;
+<<<<<<< HEAD
     private readonly IPersistence _persistence;  
+=======
+    private readonly IPersistence _persistence;
+>>>>>>> development
 
     public AuthenticationService(
         UserManager<ApplicationUser> userManager,
         ISignInService signInManager,
         RoleManager<IdentityRole> roleManager,
         JwtService jwtService,
+<<<<<<< HEAD
         ILogger<AuthenticationService> logger,
         IPersistence persistence)  
+=======
+        ILogger<AuthenticationService> logger, IPersistence persistence)
+>>>>>>> development
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _roleManager = roleManager;
         _jwtService = jwtService;
         _logger = logger;
+<<<<<<< HEAD
         _persistence = persistence;  
+=======
+        _persistence = persistence;
+
+
+>>>>>>> development
     }
 
     public async Task<LoginAdminModel.Response> LoginAdmin(LoginAdminModel.Request request)
@@ -60,6 +74,7 @@ public class AuthenticationService : IAuthenticationService
     }
 
     public async Task<LoginPatientModel.Response> LoginPatient(LoginPatientModel.Request request)
+<<<<<<< HEAD
     {
         var dniStr = request.Dni.ToString();
         if (dniStr.Length < 7 || dniStr.Length > 8)
@@ -84,8 +99,56 @@ public class AuthenticationService : IAuthenticationService
     }
 
     public Task<LoginPatientModel.Response> LoginPatient(LoginPatientModel.Response request)
+=======
+>>>>>>> development
     {
-        throw new NotImplementedException();
+        if (!request.Email.IsEmailValid()) throw new AuthenticationException();
+        var user = await _userManager.FindByEmailAsync(request.Email);
+        var dniAsPassword = "Dni#" + request.Dni.ToString();
+
+        if (user == null)
+        {
+            var dniExists = await _persistence.First<Patient>(p => p.Dni == request.Dni);
+            if (dniExists != null)
+            {
+                _logger.LogError("Intento con DNI ya existente : {Dni}", request.Dni);
+                throw new ConflictException(nameof(ErrorCodes.PATIENT_DNI_CONFLICT), ErrorCodes.PATIENT_DNI_CONFLICT);
+            }
+            user = new ApplicationUser
+            {
+                UserName = request.Email,
+                Email = request.Email,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            var createResult = await _userManager.CreateAsync(user, dniAsPassword); 
+            if (!createResult.Succeeded) throw new AuthenticationException();
+
+            await _userManager.AddToRoleAsync(user, Roles.Patient);
+
+            var patient = new Patient(Guid.Parse(user.Id), request.Dni)
+            {
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            await _persistence.Add(patient);
+        }
+        else
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            if (!roles.Contains(Roles.Patient)) throw new AuthenticationException();
+
+            var patient = await _persistence.First<Patient>(p => p.UserId == Guid.Parse(user.Id));
+            if(patient == null || patient.Dni != request.Dni)
+            {
+                _logger.LogError("Intento de loging fallido para: {Email}", request.Email);
+                throw new AuthenticationException();
+            }
+        }
+        var token = _jwtService.GenerateToken(user.UserName!, Roles.Patient);
+
+        return new LoginPatientModel.Response(token, Roles.Patient);
     }
 
     public async Task<RegisterModel.Response> Register(RegisterModel.Request request)

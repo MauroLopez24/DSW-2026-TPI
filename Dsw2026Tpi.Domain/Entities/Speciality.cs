@@ -4,9 +4,14 @@ namespace Dsw2026Tpi.Domain.Entities;
 
 public class Speciality : EntityBase
 {
+<<<<<<< HEAD
     public string Name { get; init; }
     public string Description { get; init; }
     public bool Deleted { get; private set; }
+=======
+    public string Name { get; private set; }
+    public string Description { get; private set; }
+>>>>>>> development
 
 #pragma warning disable CS8618
     private Speciality() { }
@@ -19,5 +24,15 @@ public class Speciality : EntityBase
         Deleted = false;
     }
 
+<<<<<<< HEAD
     public void Delete() => Deleted = true;
 }
+=======
+    public void Update(string name, string description)
+    {
+        Name = name;
+        Description = description;
+        UpdatedAt = DateTime.UtcNow;
+    }
+}
+>>>>>>> development
